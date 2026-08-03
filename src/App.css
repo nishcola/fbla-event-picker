@@ -1,0 +1,279 @@
+/* Landing screen (owned by App.tsx). */
+
+.landing {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.landing-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center, #1d52bc, transparent);
+  opacity: 0.22;
+}
+
+.landing-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 672px;
+  text-align: center;
+}
+
+.landing-logo {
+  width: 120px;
+  height: auto;
+  margin: 0 auto 18px;
+  display: block;
+}
+
+.landing-title {
+  margin: 0 0 10px;
+  font-size: clamp(32px, 6vw, 48px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.landing-sub {
+  margin: 0 auto 44px;
+  font-size: clamp(16px, 2.4vw, 18px);
+  color: var(--muted);
+}
+
+.level-pick {
+  margin-bottom: 20px;
+}
+
+.section-label {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.segmented {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.seg-btn {
+  flex: 1;
+  max-width: 190px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.seg-btn:hover {
+  background: #f4f6fb;
+}
+
+.seg-btn.active {
+  background: var(--fbla-navy);
+  border-color: var(--fbla-navy);
+  color: #fff;
+}
+
+.option-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.option-card {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease,
+    transform 0.12s ease;
+}
+
+.option-card:hover:not(:disabled) {
+  background: #f6f8fc;
+  border-color: #d4dbea;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.option-card:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.option-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.option-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.option-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.option-arrow {
+  color: var(--muted);
+  transition: transform 0.12s ease;
+}
+
+.option-card:hover:not(:disabled) .option-arrow {
+  transform: translateX(3px);
+}
+
+.option-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.landing-helper {
+  margin: 30px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.resume-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto 24px;
+  padding: 12px 16px;
+  background: #edf1fb;
+  border: 1px solid #d4dbea;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--fbla-navy);
+  text-align: left;
+}
+
+.resume-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.resume-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.resume-btn {
+  background: var(--fbla-navy);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.resume-btn:hover {
+  background: var(--fbla-blue);
+}
+
+.resume-dismiss {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 7px 4px;
+}
+
+.resume-dismiss:hover {
+  color: var(--fbla-navy);
+}
+
+.landing-inner > * {
+  animation: fadeSlide 0.5s ease both;
+}
+
+.landing-inner > *:nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.landing-inner > *:nth-child(3) {
+  animation-delay: 0.14s;
+}
+
+.landing-inner > *:nth-child(4) {
+  animation-delay: 0.22s;
+}
+
+.landing-inner > *:nth-child(5) {
+  animation-delay: 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-inner > * {
+    animation: none;
+  }
+
+  .option-card:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .landing {
+    padding: 40px 20px;
+  }
+
+  .landing-title {
+    letter-spacing: -0.025em;
+  }
+
+  .landing-sub {
+    margin-bottom: 36px;
+  }
+
+  .segmented {
+    gap: 6px;
+  }
+
+  .option-cards {
+    gap: 10px;
+  }
+}

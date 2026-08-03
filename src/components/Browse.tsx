@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import './Browse.css';
 import { events, CATEGORY_LABELS, FORMAT_LABELS, CLUSTER_LABELS } from '../data/events';
 import { descriptions } from '../data/descriptions';
 import EventDescription from './EventDescription';
+import { CheckIcon } from './icons';
 
 const CATEGORY_OPTIONS = [
   { value: 'objective', label: 'Objective Tests', hint: 'Multiple-choice tests on a business topic, scored for accuracy' },
@@ -22,25 +24,22 @@ const CLUSTER_OPTIONS = Object.entries(CLUSTER_LABELS).map(([value, label]) => (
   label,
 }));
 
-function CheckIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
+interface FilterOption {
+  value: string;
+  label: string;
+  hint?: string;
 }
 
-function FilterGroup({ title, options, selected, onToggle, open, onToggleOpen }) {
+interface FilterGroupProps {
+  title: string;
+  options: FilterOption[];
+  selected: Set<string>;
+  onToggle: (value: string) => void;
+  open: boolean;
+  onToggleOpen: () => void;
+}
+
+function FilterGroup({ title, options, selected, onToggle, open, onToggleOpen }: FilterGroupProps) {
   return (
     <div className={`filter-group ${open ? 'open' : ''}`}>
       <button
@@ -115,11 +114,16 @@ function FilterGroup({ title, options, selected, onToggle, open, onToggleOpen })
   );
 }
 
-function Browse({ grade, onQuiz }) {
+interface BrowseProps {
+  grade: number | null;
+  onQuiz: () => void;
+}
+
+function Browse({ grade, onQuiz }: BrowseProps) {
   const [query, setQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState(() => new Set());
-  const [selectedFormats, setSelectedFormats] = useState(() => new Set());
-  const [selectedClusters, setSelectedClusters] = useState(() => new Set());
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(() => new Set());
+  const [selectedFormats, setSelectedFormats] = useState<Set<string>>(() => new Set());
+  const [selectedClusters, setSelectedClusters] = useState<Set<string>>(() => new Set());
   const [openGroups, setOpenGroups] = useState({ category: true, format: true, cluster: true });
 
   // Collapse the sidebar groups into accordions on small screens.
@@ -136,7 +140,7 @@ function Browse({ grade, onQuiz }) {
   const hasFilters =
     selectedCategories.size > 0 || selectedFormats.size > 0 || selectedClusters.size > 0;
 
-  const toggleSet = (setter) => (value) => {
+  const toggleSet = (setter: Dispatch<SetStateAction<Set<string>>>) => (value: string) => {
     setter((prev) => {
       const next = new Set(prev);
       if (next.has(value)) next.delete(value);

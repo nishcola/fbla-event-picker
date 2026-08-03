@@ -1,0 +1,47 @@
+/* Expandable event description (owned by EventDescription.tsx). */
+
+.event-desc {
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.event-desc.clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.event-desc.clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.event-desc.expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.desc-toggle {
+  display: inline-block;
+  margin: 2px 0 10px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fbla-cobalt);
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+
+.desc-toggle:hover {
+  color: var(--fbla-navy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

@@ -1,4 +1,6 @@
-export const CATEGORY_LABELS = {
+import type { Category, Cluster, FBLAEvent, Format } from '../types';
+
+export const CATEGORY_LABELS: Record<Category, string> = {
   objective: 'Objective Test',
   presentation: 'Presentation',
   roleplay: 'Role Play',
@@ -6,13 +8,13 @@ export const CATEGORY_LABELS = {
   production: 'Production',
 };
 
-export const FORMAT_LABELS = {
+export const FORMAT_LABELS: Record<Format, string> = {
   individual: 'Individual',
   team: 'Team',
   either: 'Individual or Team',
 };
 
-export const CLUSTER_LABELS = {
+export const CLUSTER_LABELS: Record<Cluster, string> = {
   'marketing-sales': 'Marketing & Sales',
   'digital-tech': 'Digital Technology',
   'management-entrepreneurship': 'Management & Entrepreneurship',
@@ -33,7 +35,7 @@ export const CLUSTER_LABELS = {
 // juniorOnly: true = 9th & 10th grade only ("Introduction to..." events)
 // interests: theme tags used for interest-based scoring (see questions.js)
 // clusters: 1-2 career clusters used for filtering in the browse sidebar (see CLUSTER_LABELS)
-export const events = [
+export const events: FBLAEvent[] = [
   { id: 'accounting', name: 'Accounting', category: 'objective', format: 'individual', juniorOnly: false, interests: ['finance', 'business'], clusters: ['financial-services'] },
   { id: 'advanced-accounting', name: 'Advanced Accounting', category: 'objective', format: 'individual', juniorOnly: false, interests: ['finance'], clusters: ['financial-services'] },
   { id: 'advertising', name: 'Advertising', category: 'objective', format: 'individual', juniorOnly: false, interests: ['marketing', 'design'], clusters: ['marketing-sales'] },

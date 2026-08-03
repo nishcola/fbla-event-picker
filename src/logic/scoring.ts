@@ -1,5 +1,6 @@
-import { events } from '../data/events.js';
-import { INTEREST_THEMES } from '../data/questions.js';
+import { events } from '../data/events';
+import { INTEREST_THEMES } from '../data/questions';
+import type { Answers, FBLAEvent, ResultPart, ScoredResult } from '../types';
 
 const ADVANCED_EVENTS = new Set([
   'advanced-accounting',
@@ -20,18 +21,26 @@ const ADVANCED_EVENTS = new Set([
   'supply-chain-management',
 ]);
 
+// Narrow the loose answer store down to the numeric/array fields scoring needs.
+function narrowAnswers(answers: Answers) {
+  const grade = typeof answers.grade === 'number' ? answers.grade : undefined;
+  const interests = Array.isArray(answers.interests) ? answers.interests : [];
+  return { grade, interests };
+}
+
 // The maximum score any event could earn for a given answer set.
 // Percentages are measured against this theoretical maximum, so 100% means
 // a true perfect fit and the top 5 naturally spread instead of all reading 100%.
-function computeTheoreticalMax(answers) {
-  const { style, team, interests = [], prep, speaking, experience, grade } = answers;
+function computeTheoreticalMax(answers: Answers): number {
+  const { style, team, prep, speaking, experience } = answers;
+  const { grade, interests } = narrowAnswers(answers);
   let max = 0;
   max += style === 'handsOn' ? 28 : 30;
   max += team === 'any' ? 12 : 25;
   max += Math.min(interests.length, 3) * 12;
   max += prep === 'weeks' ? 10 : 20;
   max += speaking === 'ok' ? 8 : 18;
-  if (experience === 'first') max += grade > 10 ? 8 : 20;
+  if (experience === 'first') max += grade !== undefined && grade > 10 ? 8 : 20;
   else if (experience === 'seasoned') max += 22;
   else max += 8;
   return max;
@@ -42,13 +51,17 @@ function computeTheoreticalMax(answers) {
 // list of every answer that earned points ({ key, label, points, detail }).
 // This is the single source of truth used both for ranking and for the
 // "how we calculated this" breakdown on the results page.
-export function scoreEvent(event, answers) {
-  const { style, team, interests = [], prep, speaking, experience, grade } = answers;
-  const parts = [];
+export function scoreEvent(
+  event: FBLAEvent,
+  answers: Answers,
+): Omit<ScoredResult, 'percent' | 'rank'> {
+  const { style, team, prep, speaking, experience } = answers;
+  const { grade, interests } = narrowAnswers(answers);
+  const parts: ResultPart[] = [];
   let score = 0;
 
   // Q1: grade (hard rule)
-  if (event.juniorOnly && grade > 10) {
+  if (event.juniorOnly && grade !== undefined && grade > 10) {
     return { event, score: 0, seniorBlocked: true, parts };
   }
 
@@ -170,7 +183,7 @@ export function scoreEvent(event, answers) {
 // Build a scored result for every event based on the collected answers.
 // Preferred answers boost scores; the grade rule hard-excludes junior-only
 // events for upperclassmen. Everything else is soft preference scoring.
-export function computeResults(answers) {
+export function computeResults(answers: Answers): ScoredResult[] {
   const theoreticalMax = computeTheoreticalMax(answers);
 
   return events
@@ -184,8 +197,8 @@ export function computeResults(answers) {
     }));
 }
 
-export function excludedCount(answers) {
-  const grade = answers.grade;
+export function excludedCount(answers: Answers): number {
+  const grade = typeof answers.grade === 'number' ? answers.grade : undefined;
   if (!grade || grade <= 10) return 0;
   return events.filter((e) => e.juniorOnly).length;
 }

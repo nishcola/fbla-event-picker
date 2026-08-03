@@ -1,6 +1,8 @@
+import type { FBLAEvent } from '../types';
+
 // Official FBLA 2025-2026 High School Competitive Event Descriptions
 // Source: FBLA Competitive Event Descriptions (fbla.org)
-export const descriptions = {
+export const descriptions: Record<FBLAEvent['id'], string> = {
   "accounting": "challenges competitors to demonstrate their understanding of fundamental accounting principles through an objective test. This event introduces members to key concepts such as financial statements, journal entries, and the accounting cycle, encouraging exploration of careers in accounting and finance.",
   "advanced-accounting": "allows members to demonstrate their knowledge of higher-level accounting concepts through an objective test. This event covers topics such as corporate accounting, managerial accounting, and financial analysis, preparing members for advanced study and careers in the accounting field.",
   "advertising": "challenges members to demonstrate their understanding of advertising principles and strategies through an objective test. This event explores topics such as media planning, branding, consumer behavior, and promotional techniques used to effectively reach target audiences.",

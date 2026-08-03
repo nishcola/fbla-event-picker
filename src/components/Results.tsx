@@ -1,10 +1,17 @@
 import { CATEGORY_LABELS, FORMAT_LABELS } from '../data/events';
+import './Results.css';
 import { descriptions } from '../data/descriptions';
 import { INTEREST_THEMES } from '../data/questions';
 import { excludedCount } from '../logic/scoring';
 import EventDescription from './EventDescription';
+import type { Answers, ScoredResult } from '../types';
 
-function ResultCard({ result, position }) {
+interface ResultCardProps {
+  result: ScoredResult;
+  position: number;
+}
+
+function ResultCard({ result, position }: ResultCardProps) {
   const { event, percent } = result;
   const matchedThemes = INTEREST_THEMES.filter((t) => event.interests.includes(t.value));
 
@@ -40,7 +47,7 @@ function ResultCard({ result, position }) {
   );
 }
 
-function BreakdownCard({ result }) {
+function BreakdownCard({ result }: { result: ScoredResult }) {
   const { event, percent, score, parts } = result;
 
   return (
@@ -68,7 +75,14 @@ function BreakdownCard({ result }) {
   );
 }
 
-function Results({ results, answers, onRestart }) {
+interface ResultsProps {
+  results: ScoredResult[];
+  answers: Answers;
+  onRestart: () => void;
+  onClearHistory?: () => void;
+}
+
+function Results({ results, answers, onRestart, onClearHistory }: ResultsProps) {
   const top = results.slice(0, 5);
   const excluded = excludedCount(answers);
 
@@ -130,6 +144,11 @@ function Results({ results, answers, onRestart }) {
         <button type="button" className="btn-secondary" onClick={onRestart}>
           Start over
         </button>
+        {onClearHistory && (
+          <button type="button" className="results-clear" onClick={onClearHistory}>
+            Clear saved history
+          </button>
+        )}
       </div>
     </div>
   );

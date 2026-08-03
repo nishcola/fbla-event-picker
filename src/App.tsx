@@ -1,72 +1,53 @@
-import { useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
+import './App.css';
 import { questions } from './data/questions';
+import { events } from './data/events';
 import { computeResults } from './logic/scoring';
+import { appReducer, initialState } from './logic/appReducer';
+import { clearSession, loadSession, saveSession, type SavedSession } from './logic/session';
 import Quiz from './components/Quiz';
 import Results from './components/Results';
 import Browse from './components/Browse';
-
-function ArrowRight() {
-  return (
-    <svg
-      className="option-arrow"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M5 12h14" />
-      <path d="m12 5 7 7-7 7" />
-    </svg>
-  );
-}
-
-function HomeIcon() {
-  return (
-    <svg
-      className="home-icon"
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <path d="M9 22V12h6v10" />
-    </svg>
-  );
-}
+import { ArrowRight, HomeIcon } from './components/icons';
+import type { Answers } from './types';
 
 function App() {
-  const [screen, setScreen] = useState('home');
-  const [answers, setAnswers] = useState({});
-  const [grade, setGrade] = useState(null);
+  const [state, dispatch] = useReducer(appReducer, initialState);
+  const { screen, answers, grade } = state;
+  const [resumable, setResumable] = useState<SavedSession | null>(() => loadSession());
 
-  const handleFinish = (finalAnswers) => {
-    setAnswers(finalAnswers);
-    setScreen('results');
+  const isLanding = screen === 'home';
+
+  // Persist the session whenever the results screen is shown, so a page
+  // refresh can offer to restore it.
+  useEffect(() => {
+    if (screen === 'results') {
+      saveSession(answers);
+      setResumable({ answers, savedAt: Date.now() });
+    }
+  }, [screen, answers]);
+
+  const handleFinish = (finalAnswers: Answers) => {
+    dispatch({ type: 'FINISH_QUIZ', answers: finalAnswers });
   };
 
   const handleHome = () => {
-    setAnswers({});
-    setGrade(null);
-    setScreen('home');
+    dispatch({ type: 'GO_HOME' });
   };
 
   const startQuiz = () => {
-    setAnswers(grade ? { grade } : {});
-    setScreen('quiz');
+    dispatch({ type: 'START_QUIZ' });
   };
 
-  const isLanding = screen === 'home';
+  const handleResume = () => {
+    if (!resumable) return;
+    dispatch({ type: 'RESTORE_SESSION', answers: resumable.answers });
+  };
+
+  const handleClearHistory = () => {
+    clearSession();
+    setResumable(null);
+  };
 
   return (
     <div className="app">
@@ -104,13 +85,33 @@ function App() {
               </h1>
               <p className="landing-sub">Find events that match your interests and skills</p>
 
+              {resumable && (
+                <div className="resume-banner" role="status">
+                  <span className="resume-banner-text">
+                    You have saved results from an earlier session.
+                  </span>
+                  <span className="resume-banner-actions">
+                    <button type="button" className="resume-btn" onClick={handleResume}>
+                      View results
+                    </button>
+                    <button
+                      type="button"
+                      className="resume-dismiss"
+                      onClick={() => setResumable(null)}
+                    >
+                      Dismiss
+                    </button>
+                  </span>
+                </div>
+              )}
+
               <div className="level-pick">
                 <p className="section-label">Select your grade level</p>
                 <div className="segmented" role="group" aria-label="Grade level">
                   <button
                     type="button"
                     className={`seg-btn ${grade === 10 ? 'active' : ''}`}
-                    onClick={() => setGrade(10)}
+                    onClick={() => dispatch({ type: 'SET_GRADE', grade: 10 })}
                     aria-pressed={grade === 10}
                   >
                     9th &amp; 10th Grade
@@ -118,7 +119,7 @@ function App() {
                   <button
                     type="button"
                     className={`seg-btn ${grade === 11 ? 'active' : ''}`}
-                    onClick={() => setGrade(11)}
+                    onClick={() => dispatch({ type: 'SET_GRADE', grade: 11 })}
                     aria-pressed={grade === 11}
                   >
                     11th &amp; 12th Grade
@@ -146,7 +147,7 @@ function App() {
                   type="button"
                   className="option-card"
                   disabled={!grade}
-                  onClick={() => setScreen('browse')}
+                  onClick={() => dispatch({ type: 'GO_BROWSE' })}
                 >
                   <span className="option-label">Option 2</span>
                   <span className="option-title-row">
@@ -154,7 +155,7 @@ function App() {
                     <ArrowRight />
                   </span>
                   <span className="option-desc">
-                    See all {`76`} FBLA events and filter by category
+                    See all {events.length} FBLA events and filter by category
                   </span>
                 </button>
               </div>
@@ -171,7 +172,12 @@ function App() {
         )}
 
         {screen === 'results' && (
-          <Results results={computeResults(answers)} answers={answers} onRestart={handleHome} />
+          <Results
+            results={computeResults(answers)}
+            answers={answers}
+            onRestart={handleHome}
+            onClearHistory={resumable ? handleClearHistory : undefined}
+          />
         )}
 
         {screen === 'browse' && (

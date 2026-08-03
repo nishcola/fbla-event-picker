@@ -1,14 +1,26 @@
-function Question({ question, value, onChange, onConfirm }) {
-  const isMulti = !!question.multi;
-  const selected = isMulti ? value || [] : value;
-  const canContinue = isMulti ? selected.length > 0 : selected != null;
+import type { AnswerValue, Question } from '../types';
 
-  const toggle = (optValue) => {
+interface QuestionProps {
+  question: Question;
+  value: AnswerValue | undefined;
+  onChange: (id: string, value: AnswerValue) => void;
+  onConfirm: () => void;
+}
+
+function Question({ question, value, onChange, onConfirm }: QuestionProps) {
+  const isMulti = !!question.multi;
+  // Array.isArray narrows the answer store value to string[] — multi-select
+  // answers are always arrays of string option values in this app.
+  const selected = isMulti ? (Array.isArray(value) ? value : []) : [];
+  const canContinue = isMulti ? selected.length > 0 : value != null;
+
+  const toggle = (optValue: string | number) => {
     if (!isMulti) {
       onChange(question.id, optValue);
       onConfirm();
       return;
     }
+    if (typeof optValue !== 'string') return; // multi-select option values are strings
     const next = selected.includes(optValue)
       ? selected.filter((v) => v !== optValue)
       : [...selected, optValue];
@@ -20,7 +32,9 @@ function Question({ question, value, onChange, onConfirm }) {
       <p className="question-text">{question.question}</p>
       <div className="options">
         {question.options.map((opt) => {
-          const active = isMulti ? selected.includes(opt.value) : selected === opt.value;
+          const active = isMulti
+            ? typeof opt.value === 'string' && selected.includes(opt.value)
+            : value === opt.value;
           return (
             <button
               key={opt.value}

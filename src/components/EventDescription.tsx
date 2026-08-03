@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
+import './EventDescription.css';
 
-function EventDescription({ text, clampLines = 2 }) {
-  const ref = useRef(null);
+interface EventDescriptionProps {
+  text: string;
+  clampLines?: number;
+}
+
+function EventDescription({ text, clampLines = 2 }: EventDescriptionProps) {
+  const ref = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
 

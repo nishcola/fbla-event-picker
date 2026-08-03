@@ -1,15 +1,22 @@
 import { useState } from 'react';
+import './Quiz.css';
 import { questions } from '../data/questions';
 import Question from './Question';
+import type { Answers, AnswerValue } from '../types';
 
-function Quiz({ onFinish, initialAnswers = {} }) {
+interface QuizProps {
+  onFinish: (answers: Answers) => void;
+  initialAnswers?: Answers;
+}
+
+function Quiz({ onFinish, initialAnswers = {} }: QuizProps) {
   const [index, setIndex] = useState(initialAnswers.grade ? 1 : 0);
-  const [answers, setAnswers] = useState(initialAnswers);
+  const [answers, setAnswers] = useState<Answers>(initialAnswers);
 
   const question = questions[index];
   const progress = ((index + 1) / questions.length) * 100;
 
-  const handleChange = (id, value) => {
+  const handleChange = (id: string, value: AnswerValue) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
   };
 

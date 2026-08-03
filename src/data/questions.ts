@@ -1,20 +1,24 @@
-// Interview-style questionnaire: one question at a time.
-// Values are consumed by scoring.js to compute each event's fit score.
+import type { InterestTheme, Question } from '../types';
 
-export const INTEREST_THEMES = [
+// Interview-style questionnaire: one question at a time.
+// Values are consumed by scoring to compute each event's fit score.
+
+export const INTEREST_THEMES: InterestTheme[] = [
   { label: 'Money & finance', value: 'finance' },
   { label: 'Business & leadership', value: 'business' },
   { label: 'Technology & coding', value: 'tech' },
   { label: 'Marketing & sales', value: 'marketing' },
   { label: 'Design & media', value: 'design' },
+  { label: 'Media & journalism', value: 'media' },
   { label: 'Speaking & leadership', value: 'speaking' },
   { label: 'Community & government', value: 'community' },
   { label: 'Healthcare', value: 'health' },
   { label: 'Global trade & logistics', value: 'global' },
+  { label: 'Trades & skilled labor', value: 'trades' },
   { label: 'Sports & events', value: 'sports' },
 ];
 
-export const questions = [
+export const questions: Question[] = [
   {
     id: 'grade',
     question: 'First, what grade are you in?',
