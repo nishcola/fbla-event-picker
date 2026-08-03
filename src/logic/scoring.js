@@ -1,4 +1,5 @@
 import { events } from '../data/events.js';
+import { INTEREST_THEMES } from '../data/questions.js';
 
 const ADVANCED_EVENTS = new Set([
   'advanced-accounting',
@@ -36,6 +37,136 @@ function computeTheoreticalMax(answers) {
   return max;
 }
 
+// Score one event against the collected answers.
+// Returns { event, score, seniorBlocked, parts } where parts is a human-readable
+// list of every answer that earned points ({ key, label, points, detail }).
+// This is the single source of truth used both for ranking and for the
+// "how we calculated this" breakdown on the results page.
+export function scoreEvent(event, answers) {
+  const { style, team, interests = [], prep, speaking, experience, grade } = answers;
+  const parts = [];
+  let score = 0;
+
+  // Q1: grade (hard rule)
+  if (event.juniorOnly && grade > 10) {
+    return { event, score: 0, seniorBlocked: true, parts };
+  }
+
+  // Q2: competition style
+  if (style === 'objective' && event.category === 'objective') {
+    score += 30;
+    parts.push({ key: 'style', label: 'Competition style', points: 30, detail: 'Objective test events match how you like to compete' });
+  } else if (style === 'presentation' && event.category === 'presentation') {
+    score += 30;
+    parts.push({ key: 'style', label: 'Competition style', points: 30, detail: 'Presentation events match how you like to compete' });
+  } else if (style === 'roleplay' && event.category === 'roleplay') {
+    score += 30;
+    parts.push({ key: 'style', label: 'Competition style', points: 30, detail: 'Role play events match how you like to compete' });
+  } else if (style === 'handsOn') {
+    if (event.category === 'production' || event.category === 'chapter') {
+      score += 28;
+      parts.push({ key: 'style', label: 'Competition style', points: 28, detail: 'Hands-on building events match how you like to compete' });
+    } else if (event.category === 'presentation') {
+      score += 16;
+      parts.push({ key: 'style', label: 'Competition style', points: 16, detail: 'Presentation events partially match your hands-on preference' });
+    }
+  }
+
+  // Q3: team preference
+  if (team === 'individual') {
+    if (event.format === 'individual') {
+      score += 25;
+      parts.push({ key: 'team', label: 'Team preference', points: 25, detail: 'Individual event fits your preference to compete alone' });
+    } else if (event.format === 'either') {
+      score += 12;
+      parts.push({ key: 'team', label: 'Team preference', points: 12, detail: 'Works solo or as a team — flexible fit' });
+    }
+  } else if (team === 'team') {
+    if (event.format === 'team' || event.format === 'either') {
+      score += 25;
+      parts.push({ key: 'team', label: 'Team preference', points: 25, detail: 'Team event fits your preference to work with others' });
+    } else {
+      score += 4;
+      parts.push({ key: 'team', label: 'Team preference', points: 4, detail: 'Individual format — slight mismatch' });
+    }
+  } else {
+    score += 12;
+    parts.push({ key: 'team', label: 'Team preference', points: 12, detail: 'No strong preference for solo or team' });
+  }
+
+  // Q4: interests (multi-select)
+  if (interests.length) {
+    const matched = event.interests.filter((t) => interests.includes(t));
+    const pts = Math.min(matched.length, 3) * 12;
+    if (pts > 0) {
+      score += pts;
+      const matchedLabels = INTEREST_THEMES.filter((t) => matched.includes(t.value)).map((t) => t.label);
+      parts.push({ key: 'interests', label: 'Your interests', points: pts, detail: `Matches ${matchedLabels.length} of your interests${matchedLabels.length ? `: ${matchedLabels.join(', ')}` : ''}` });
+    }
+  }
+
+  // Q5: prep time
+  if (prep === 'light') {
+    if (event.category === 'objective') {
+      score += 20;
+      parts.push({ key: 'prep', label: 'Prep time', points: 20, detail: 'Objective tests suit a light time commitment' });
+    } else if (event.category === 'roleplay') {
+      score += 10;
+      parts.push({ key: 'prep', label: 'Prep time', points: 10, detail: 'Role plays need only light prep' });
+    }
+  } else if (prep === 'allIn') {
+    if (event.category === 'presentation' || event.category === 'chapter' || event.category === 'production') {
+      score += 20;
+      parts.push({ key: 'prep', label: 'Prep time', points: 20, detail: 'Big-project events reward your all-in commitment' });
+    } else if (event.category === 'roleplay') {
+      score += 10;
+      parts.push({ key: 'prep', label: 'Prep time', points: 10, detail: 'Role plays benefit from extra practice' });
+    }
+  } else {
+    score += 10;
+    parts.push({ key: 'prep', label: 'Prep time', points: 10, detail: 'A few weeks of prep fits these events' });
+  }
+
+  // Q6: speaking comfort
+  if (speaking === 'love') {
+    if (event.category === 'presentation' || event.category === 'roleplay') {
+      score += 18;
+      parts.push({ key: 'speaking', label: 'Presenting', points: 18, detail: 'You love presenting — great fit' });
+    }
+  } else if (speaking === 'ok') {
+    score += 8;
+    parts.push({ key: 'speaking', label: 'Presenting', points: 8, detail: 'You are comfortable presenting' });
+  } else if (speaking === 'avoid') {
+    if (event.category === 'objective') {
+      score += 16;
+      parts.push({ key: 'speaking', label: 'Presenting', points: 16, detail: 'Objective tests keep presenting to a minimum' });
+    }
+  }
+
+  // Q7: experience
+  if (experience === 'first') {
+    if (event.juniorOnly) {
+      score += 20;
+      parts.push({ key: 'experience', label: 'Experience', points: 20, detail: 'Introductory event — great for a first competition' });
+    } else if (event.category === 'objective') {
+      score += 8;
+      parts.push({ key: 'experience', label: 'Experience', points: 8, detail: 'Objective tests are beginner-friendly' });
+    }
+  } else if (experience === 'seasoned') {
+    if (ADVANCED_EVENTS.has(event.id)) {
+      score += 16;
+      parts.push({ key: 'experience', label: 'Experience', points: 16, detail: 'Advanced event for an experienced competitor' });
+    }
+    score += 6;
+    parts.push({ key: 'experience', label: 'Experience', points: 6, detail: 'Competition experience is a bonus everywhere' });
+  } else {
+    score += 8;
+    parts.push({ key: 'experience', label: 'Experience', points: 8, detail: 'Some experience — solid fit' });
+  }
+
+  return { event, score, seniorBlocked: false, parts };
+}
+
 // Build a scored result for every event based on the collected answers.
 // Preferred answers boost scores; the grade rule hard-excludes junior-only
 // events for upperclassmen. Everything else is soft preference scoring.
@@ -43,81 +174,8 @@ export function computeResults(answers) {
   const theoreticalMax = computeTheoreticalMax(answers);
 
   return events
-    .map((event) => {
-      let score = 0;
-
-      // Q1: grade (hard rule)
-      const grade = answers.grade;
-      if (event.juniorOnly && grade > 10) {
-        return { event, score: 0, seniorBlocked: true };
-      }
-
-      // Q2: competition style
-      const style = answers.style;
-      if (style === 'objective' && event.category === 'objective') score += 30;
-      if (style === 'presentation' && event.category === 'presentation') score += 30;
-      if (style === 'roleplay' && event.category === 'roleplay') score += 30;
-      if (style === 'handsOn') {
-        if (event.category === 'production' || event.category === 'chapter') score += 28;
-        else if (event.category === 'presentation') score += 16;
-      }
-
-      // Q3: team preference
-      const team = answers.team;
-      if (team === 'individual') {
-        if (event.format === 'individual') score += 25;
-        else if (event.format === 'either') score += 12;
-      } else if (team === 'team') {
-        if (event.format === 'team' || event.format === 'either') score += 25;
-        else score += 4;
-      } else {
-        score += 12;
-      }
-
-      // Q4: interests (multi-select)
-      const themes = answers.interests || [];
-      if (themes.length) {
-        const matches = event.interests.filter((t) => themes.includes(t)).length;
-        score += Math.min(matches, 3) * 12;
-      }
-
-      // Q5: prep time
-      const prep = answers.prep;
-      if (prep === 'light') {
-        if (event.category === 'objective') score += 20;
-        else if (event.category === 'roleplay') score += 10;
-      } else if (prep === 'allIn') {
-        if (event.category === 'presentation' || event.category === 'chapter' || event.category === 'production') score += 20;
-        else if (event.category === 'roleplay') score += 10;
-      } else {
-        score += 10;
-      }
-
-      // Q6: speaking comfort
-      const speaking = answers.speaking;
-      if (speaking === 'love') {
-        if (event.category === 'presentation' || event.category === 'roleplay') score += 18;
-      } else if (speaking === 'ok') {
-        score += 8;
-      } else if (speaking === 'avoid') {
-        if (event.category === 'objective') score += 16;
-      }
-
-      // Q7: experience
-      const experience = answers.experience;
-      if (experience === 'first') {
-        if (event.juniorOnly) score += 20;
-        else if (event.category === 'objective') score += 8;
-      } else if (experience === 'seasoned') {
-        if (ADVANCED_EVENTS.has(event.id)) score += 16;
-        score += 6;
-      } else {
-        score += 8;
-      }
-
-      return { event, score, senior: false };
-    })
-    .filter((r) => !r.senior)
+    .map((event) => scoreEvent(event, answers))
+    .filter((r) => !r.seniorBlocked)
     .sort((a, b) => b.score - a.score || a.event.name.localeCompare(b.event.name))
     .map((r, i) => ({
       ...r,

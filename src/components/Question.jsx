@@ -28,7 +28,9 @@ function Question({ question, value, onChange, onConfirm }) {
               className={`option ${active ? 'active' : ''}`}
               onClick={() => toggle(opt.value)}
             >
-              <span className="option-label">{opt.label}</span>
+              <span className={`option-text${opt.hint ? ' option-text-bold' : ''}`}>
+                {opt.label}
+              </span>
               {opt.hint && <span className="option-hint">{opt.hint}</span>}
             </button>
           );

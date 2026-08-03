@@ -94,6 +94,11 @@ function App() {
           <section className="landing" aria-labelledby="landing-title">
             <div className="landing-glow" aria-hidden="true" />
             <div className="landing-inner">
+              <img
+                src="/fbla-logo.png"
+                alt="Future Business Leaders of America (FBLA)"
+                className="landing-logo"
+              />
               <h1 id="landing-title" className="landing-title">
                 FBLA Event Picker
               </h1>
@@ -170,7 +175,7 @@ function App() {
         )}
 
         {screen === 'browse' && (
-          <Browse grade={grade} onBack={handleHome} onQuiz={startQuiz} />
+          <Browse grade={grade} onQuiz={startQuiz} />
         )}
       </main>
     </div>

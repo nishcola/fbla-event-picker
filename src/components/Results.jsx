@@ -40,6 +40,34 @@ function ResultCard({ result, position }) {
   );
 }
 
+function BreakdownCard({ result }) {
+  const { event, percent, score, parts } = result;
+
+  return (
+    <div className="breakdown-card">
+      <div className="breakdown-card-head">
+        <span className="breakdown-name">{event.name}</span>
+        <span className="breakdown-score">
+          {score} pts · {percent}% match
+        </span>
+      </div>
+      {parts.length === 0 ? (
+        <p className="breakdown-empty">No strong matches with your answers — a softer fit.</p>
+      ) : (
+        <ul className="breakdown-parts">
+          {parts.map((p) => (
+            <li key={p.key} className="breakdown-part">
+              <span className="breakdown-part-label">{p.label}</span>
+              <span className="breakdown-part-detail">{p.detail}</span>
+              <span className="breakdown-part-points">+{p.points}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function Results({ results, answers, onRestart }) {
   const top = results.slice(0, 5);
   const excluded = excludedCount(answers);
@@ -65,6 +93,38 @@ function Results({ results, answers, onRestart }) {
           <ResultCard key={r.event.id} result={r} position={i} />
         ))}
       </div>
+
+      <details className="breakdown">
+        <summary className="breakdown-summary">
+          <span>How your results were calculated</span>
+          <svg
+            className="breakdown-chevron"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </summary>
+        <div className="breakdown-body">
+          <p className="breakdown-intro">
+            Every event starts at 0 points and earns points for each answer it matches.
+            Your top 5 are ranked by total points; the match % compares each event&apos;s
+            points to the best possible score for your answers.
+          </p>
+          <div className="breakdown-list">
+            {top.map((r) => (
+              <BreakdownCard key={r.event.id} result={r} />
+            ))}
+          </div>
+        </div>
+      </details>
 
       <div className="results-actions">
         <button type="button" className="btn-secondary" onClick={onRestart}>
