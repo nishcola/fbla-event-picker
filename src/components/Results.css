@@ -55,12 +55,19 @@
   border-radius: var(--radius-lg);
   padding: 20px;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .result-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  border-color: #d4dbea;
+}
+
+.result-card:focus-visible {
+  outline: 3px solid var(--fbla-cobalt);
+  outline-offset: 2px;
 }
 
 .rank-circle {

@@ -1,4 +1,4 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useState, type Dispatch, type KeyboardEvent, type SetStateAction } from 'react';
 import './Browse.css';
 import { events, CATEGORY_LABELS, FORMAT_LABELS, CLUSTER_LABELS } from '../data/events';
 import { descriptions } from '../data/descriptions';
@@ -117,9 +117,10 @@ function FilterGroup({ title, options, selected, onToggle, open, onToggleOpen }:
 interface BrowseProps {
   grade: number | null;
   onQuiz: () => void;
+  onSelectEvent: (eventId: string) => void;
 }
 
-function Browse({ grade, onQuiz }: BrowseProps) {
+function Browse({ grade, onQuiz, onSelectEvent }: BrowseProps) {
   const [query, setQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(() => new Set());
   const [selectedFormats, setSelectedFormats] = useState<Set<string>>(() => new Set());
@@ -153,6 +154,13 @@ function Browse({ grade, onQuiz }: BrowseProps) {
     setSelectedCategories(new Set());
     setSelectedFormats(new Set());
     setSelectedClusters(new Set());
+  };
+
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>, eventId: string) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onSelectEvent(eventId);
+    }
   };
 
   const visible = events.filter((event) => {
@@ -234,7 +242,15 @@ function Browse({ grade, onQuiz }: BrowseProps) {
           ) : (
             <div className="event-list">
               {visible.map((event) => (
-                <article key={event.id} className="event-card">
+                <article
+                  key={event.id}
+                  className="event-card"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`View details for ${event.name}`}
+                  onClick={() => onSelectEvent(event.id)}
+                  onKeyDown={(e) => handleCardKeyDown(e, event.id)}
+                >
                   <h3 className="event-name">{event.name}</h3>
                   {descriptions[event.id] && (
                     <EventDescription text={descriptions[event.id]} clampLines={3} />

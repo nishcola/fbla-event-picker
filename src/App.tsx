@@ -5,11 +5,15 @@ import { events } from './data/events';
 import { computeResults } from './logic/scoring';
 import { appReducer, initialState } from './logic/appReducer';
 import { clearSession, loadSession, saveSession, type SavedSession } from './logic/session';
+import { topics } from './data/topics';
+import { resources, DEFAULT_RESOURCES } from './data/resources';
+import { findSimilar } from './logic/similar';
 import Quiz from './components/Quiz';
 import Results from './components/Results';
 import Browse from './components/Browse';
+import EventDetail from './components/EventDetail';
 import { ArrowRight, HomeIcon } from './components/icons';
-import type { Answers } from './types';
+import type { Answers, FBLAEvent } from './types';
 
 function App() {
   const [state, dispatch] = useReducer(appReducer, initialState);
@@ -17,6 +21,12 @@ function App() {
   const [resumable, setResumable] = useState<SavedSession | null>(() => loadSession());
 
   const isLanding = screen === 'home';
+
+  // Resolve the event shown on the detail screen (if any).
+  const detailEvent: FBLAEvent | null =
+    screen === 'detail'
+      ? events.find((event) => event.id === state.selectedEventId) ?? null
+      : null;
 
   // Persist the session whenever the results screen is shown, so a page
   // refresh can offer to restore it.
@@ -47,6 +57,10 @@ function App() {
   const handleClearHistory = () => {
     clearSession();
     setResumable(null);
+  };
+
+  const handleSelectEvent = (eventId: string) => {
+    dispatch({ type: 'GO_DETAIL', eventId });
   };
 
   return (
@@ -177,11 +191,27 @@ function App() {
             answers={answers}
             onRestart={handleHome}
             onClearHistory={resumable ? handleClearHistory : undefined}
+            onSelectEvent={handleSelectEvent}
           />
         )}
 
         {screen === 'browse' && (
-          <Browse grade={grade} onQuiz={startQuiz} />
+          <Browse grade={grade} onQuiz={startQuiz} onSelectEvent={handleSelectEvent} />
+        )}
+
+        {screen === 'detail' && detailEvent && (
+          <EventDetail
+            event={detailEvent}
+            topics={topics[detailEvent.id] ?? []}
+            resources={resources[detailEvent.id] ?? DEFAULT_RESOURCES}
+            similar={findSimilar(detailEvent, events)}
+            onBack={() => dispatch({ type: 'GO_BACK' })}
+            onQuiz={startQuiz}
+            onSelectEvent={handleSelectEvent}
+            backLabel={
+              state.detailOrigin === 'results' ? 'Back to your results' : 'Back to all events'
+            }
+          />
         )}
       </main>
     </div>

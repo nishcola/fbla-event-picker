@@ -81,4 +81,4 @@ export interface ScoredResult {
   parts: ResultPart[];
 }
 
-export type Screen = 'home' | 'quiz' | 'results' | 'browse';
+export type Screen = 'home' | 'quiz' | 'results' | 'browse' | 'detail';

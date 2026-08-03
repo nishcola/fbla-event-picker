@@ -5,18 +5,34 @@ import { INTEREST_THEMES } from '../data/questions';
 import { excludedCount } from '../logic/scoring';
 import EventDescription from './EventDescription';
 import type { Answers, ScoredResult } from '../types';
+import type { KeyboardEvent } from 'react';
 
 interface ResultCardProps {
   result: ScoredResult;
   position: number;
+  onSelectEvent: (eventId: string) => void;
 }
 
-function ResultCard({ result, position }: ResultCardProps) {
+function ResultCard({ result, position, onSelectEvent }: ResultCardProps) {
   const { event, percent } = result;
   const matchedThemes = INTEREST_THEMES.filter((t) => event.interests.includes(t.value));
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelectEvent(event.id);
+    }
+  };
+
   return (
-    <article className="result-card">
+    <article
+      className="result-card"
+      tabIndex={0}
+      role="button"
+      aria-label={`View details for ${event.name}`}
+      onClick={() => onSelectEvent(event.id)}
+      onKeyDown={handleKeyDown}
+    >
       <div className="rank-circle">{position + 1}</div>
       <div className="result-body">
         <h3 className="result-name">{event.name}</h3>
@@ -80,9 +96,10 @@ interface ResultsProps {
   answers: Answers;
   onRestart: () => void;
   onClearHistory?: () => void;
+  onSelectEvent: (eventId: string) => void;
 }
 
-function Results({ results, answers, onRestart, onClearHistory }: ResultsProps) {
+function Results({ results, answers, onRestart, onClearHistory, onSelectEvent }: ResultsProps) {
   const top = results.slice(0, 5);
   const excluded = excludedCount(answers);
 
@@ -104,7 +121,7 @@ function Results({ results, answers, onRestart, onClearHistory }: ResultsProps) 
 
       <div className="results-list">
         {top.map((r, i) => (
-          <ResultCard key={r.event.id} result={r} position={i} />
+          <ResultCard key={r.event.id} result={r} position={i} onSelectEvent={onSelectEvent} />
         ))}
       </div>
 
