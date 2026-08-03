@@ -927,9 +927,6 @@ button:focus-visible {
   flex: 0 0 250px;
   position: sticky;
   top: 24px;
-  max-height: calc(100vh - 48px);
-  overflow-y: auto;
-  padding-right: 4px;
 }
 
 .browse-results {
@@ -982,6 +979,7 @@ button:focus-visible {
 }
 
 .filter-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1034,6 +1032,55 @@ button:focus-visible {
 
 .filter-item.active .filter-check svg {
   opacity: 1;
+}
+
+.filter-item-hint {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  opacity: 0.5;
+  cursor: help;
+  transition: opacity 0.12s ease;
+}
+
+.filter-hint-icon {
+  display: block;
+}
+
+.filter-item:hover .filter-item-hint,
+.filter-item:focus-visible .filter-item-hint {
+  opacity: 0.9;
+}
+
+.filter-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 50;
+  width: 230px;
+  max-width: calc(100vw - 40px);
+  padding: 8px 11px;
+  background: #ffffff;
+  border: 1px solid #d4dbea;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(10, 46, 127, 0.16);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ink);
+  text-align: left;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-3px);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+}
+
+.filter-item:hover .filter-tooltip,
+.filter-item:focus-visible .filter-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .filter-clear {
@@ -1172,9 +1219,6 @@ button:focus-visible {
     position: static;
     flex: none;
     width: 100%;
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
   }
 
   .browse-head {

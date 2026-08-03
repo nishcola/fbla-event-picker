@@ -4,11 +4,11 @@ import { descriptions } from '../data/descriptions';
 import EventDescription from './EventDescription';
 
 const CATEGORY_OPTIONS = [
-  { value: 'objective', label: 'Objective Tests' },
-  { value: 'presentation', label: 'Presentation Events' },
-  { value: 'roleplay', label: 'Role Play Events' },
-  { value: 'chapter', label: 'Chapter Events' },
-  { value: 'production', label: 'Production Events' },
+  { value: 'objective', label: 'Objective Tests', hint: 'Multiple-choice tests on a business topic, scored for accuracy' },
+  { value: 'presentation', label: 'Presentation Events', hint: 'Prepare a presentation, speech, or project to deliver to judges' },
+  { value: 'roleplay', label: 'Role Play Events', hint: 'React on the spot to a business scenario you get at the event' },
+  { value: 'chapter', label: 'Chapter Events', hint: 'Chapter-wide projects your team completes together' },
+  { value: 'production', label: 'Production Events', hint: 'Create and submit a product like an app, video, or website' },
 ];
 
 const FORMAT_OPTIONS = [
@@ -81,6 +81,31 @@ function FilterGroup({ title, options, selected, onToggle, open, onToggleOpen })
                   <CheckIcon />
                 </span>
                 <span className="filter-label">{opt.label}</span>
+                {opt.hint && (
+                  <>
+                    <span className="filter-item-hint">
+                      <svg
+                        className="filter-hint-icon"
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <path d="M12 17h.01" />
+                      </svg>
+                    </span>
+                    <span className="filter-tooltip" role="tooltip">
+                      {opt.hint}
+                    </span>
+                  </>
+                )}
               </button>
             );
           })}
