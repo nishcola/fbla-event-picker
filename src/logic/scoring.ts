@@ -21,21 +21,37 @@ const ADVANCED_EVENTS = new Set([
   'supply-chain-management',
 ]);
 
+// Career answer → career clusters whose events align with that goal.
+const CAREER_CLUSTERS: Record<string, string[]> = {
+  leadership: ['management-entrepreneurship', 'career-ready'],
+  healthcare: ['healthcare'],
+  technology: ['digital-tech'],
+  finance: ['financial-services'],
+  government: ['public-safety', 'education'],
+  creative: ['arts-design'],
+  entrepreneurship: ['management-entrepreneurship'],
+  'public-service': ['public-safety', 'career-ready'],
+};
+
 // Narrow the loose answer store down to the numeric/array fields scoring needs.
 function narrowAnswers(answers: Answers) {
   const grade = typeof answers.grade === 'number' ? answers.grade : undefined;
   const interests = Array.isArray(answers.interests) ? answers.interests : [];
-  return { grade, interests };
+  const styles = Array.isArray(answers.style) ? answers.style : [];
+  return { grade, interests, styles };
 }
 
 // The maximum score any event could earn for a given answer set.
 // Percentages are measured against this theoretical maximum, so 100% means
 // a true perfect fit and the top 5 naturally spread instead of all reading 100%.
 function computeTheoreticalMax(answers: Answers): number {
-  const { style, team, prep, speaking, experience } = answers;
-  const { grade, interests } = narrowAnswers(answers);
+  const { team, prep, speaking, experience } = answers;
+  const { grade, interests, styles } = narrowAnswers(answers);
   let max = 0;
-  max += style === 'handsOn' ? 28 : 30;
+  // Style: an event has exactly one category, so it can match at most one
+  // selected style. The per-event ceiling is therefore the same whether the
+  // user picks one style or several.
+  max += styles.length === 0 ? 0 : styles.some((s) => s !== 'handsOn') ? 30 : 28;
   max += team === 'any' ? 12 : 25;
   max += Math.min(interests.length, 3) * 12;
   max += prep === 'weeks' ? 10 : 20;
@@ -43,6 +59,11 @@ function computeTheoreticalMax(answers: Answers): number {
   if (experience === 'first') max += grade !== undefined && grade > 10 ? 8 : 20;
   else if (experience === 'seasoned') max += 22;
   else max += 8;
+  // Q8-10: every skill/career answer maps to at least one event, so the
+  // ceiling is the full award. 'both' work styles earn nothing anywhere.
+  max += 10; // skill
+  max += 12; // career
+  max += answers.workStyle === 'planner' || answers.workStyle === 'improviser' ? 8 : 0;
   return max;
 }
 
@@ -55,8 +76,8 @@ export function scoreEvent(
   event: FBLAEvent,
   answers: Answers,
 ): Omit<ScoredResult, 'percent' | 'rank'> {
-  const { style, team, prep, speaking, experience } = answers;
-  const { grade, interests } = narrowAnswers(answers);
+  const { team, prep, speaking, experience } = answers;
+  const { grade, interests, styles } = narrowAnswers(answers);
   const parts: ResultPart[] = [];
   let score = 0;
 
@@ -65,21 +86,26 @@ export function scoreEvent(
     return { event, score: 0, seniorBlocked: true, parts };
   }
 
-  // Q2: competition style
-  if (style === 'objective' && event.category === 'objective') {
+  // Q2: competition style (multi-select). Each selected style is scored
+  // independently; an event belongs to one category, so at most one branch
+  // awards points per event.
+  if (styles.includes('objective') && event.category === 'objective') {
     score += 30;
     parts.push({ key: 'style', label: 'Competition style', points: 30, detail: 'Objective test events match how you like to compete' });
-  } else if (style === 'presentation' && event.category === 'presentation') {
+  }
+  if (styles.includes('presentation') && event.category === 'presentation') {
     score += 30;
     parts.push({ key: 'style', label: 'Competition style', points: 30, detail: 'Presentation events match how you like to compete' });
-  } else if (style === 'roleplay' && event.category === 'roleplay') {
+  }
+  if (styles.includes('roleplay') && event.category === 'roleplay') {
     score += 30;
     parts.push({ key: 'style', label: 'Competition style', points: 30, detail: 'Role play events match how you like to compete' });
-  } else if (style === 'handsOn') {
+  }
+  if (styles.includes('handsOn')) {
     if (event.category === 'production' || event.category === 'chapter') {
       score += 28;
       parts.push({ key: 'style', label: 'Competition style', points: 28, detail: 'Hands-on building events match how you like to compete' });
-    } else if (event.category === 'presentation') {
+    } else if (event.category === 'presentation' && !styles.includes('presentation')) {
       score += 16;
       parts.push({ key: 'style', label: 'Competition style', points: 16, detail: 'Presentation events partially match your hands-on preference' });
     }
@@ -176,6 +202,60 @@ export function scoreEvent(
     score += 8;
     parts.push({ key: 'experience', label: 'Experience', points: 8, detail: 'Some experience — solid fit' });
   }
+
+  // Q8: strongest skill
+  const skill = answers.skill;
+  if (typeof skill === 'string') {
+    let skillMatch = false;
+    let skillDetail = '';
+    if (skill === 'research' && event.category === 'objective') {
+      skillMatch = true;
+      skillDetail = 'Objective tests reward your research strengths';
+    } else if (skill === 'writing' && event.category === 'presentation') {
+      skillMatch = true;
+      skillDetail = 'Presentation events showcase your writing skills';
+    } else if (skill === 'creative' && event.interests.some((t) => t === 'design' || t === 'media')) {
+      skillMatch = true;
+      skillDetail = 'Uses your creative design or media skills';
+    } else if (skill === 'numerical' && event.interests.includes('finance')) {
+      skillMatch = true;
+      skillDetail = 'Uses your strength with numbers and data';
+    } else if (skill === 'persuasion' && event.category === 'roleplay') {
+      skillMatch = true;
+      skillDetail = 'Role plays reward persuasion and quick thinking';
+    } else if (skill === 'technical' && event.interests.includes('tech')) {
+      skillMatch = true;
+      skillDetail = 'Uses your technical and building skills';
+    }
+    if (skillMatch) {
+      score += 10;
+      parts.push({ key: 'skill', label: 'Your skills', points: 10, detail: skillDetail });
+    }
+  }
+
+  // Q9: career goals
+  const career = answers.career;
+  if (typeof career === 'string') {
+    const clusters = CAREER_CLUSTERS[career];
+    if (clusters && event.clusters.some((c) => clusters.includes(c))) {
+      score += 12;
+      parts.push({ key: 'career', label: 'Career goals', points: 12, detail: 'Aligned with your career interests' });
+    }
+  }
+
+  // Q10: work style
+  if (answers.workStyle === 'planner') {
+    if (event.category === 'objective' || event.category === 'presentation') {
+      score += 8;
+      parts.push({ key: 'workStyle', label: 'Work style', points: 8, detail: 'You prefer to prepare in advance — a great fit for planned events' });
+    }
+  } else if (answers.workStyle === 'improviser') {
+    if (event.category === 'roleplay') {
+      score += 8;
+      parts.push({ key: 'workStyle', label: 'Work style', points: 8, detail: 'You thrive on the spot — a great fit for role plays' });
+    }
+  }
+  // 'both' is neutral and earns no points.
 
   return { event, score, seniorBlocked: false, parts };
 }

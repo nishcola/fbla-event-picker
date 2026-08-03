@@ -31,7 +31,8 @@ export const questions: Question[] = [
   },
   {
     id: 'style',
-    question: 'How do you like to compete?',
+    question: 'How do you like to compete? (pick as many as you like)',
+    multi: true,
     options: [
       { label: 'Multiple-choice tests', value: 'objective', hint: 'Study a topic, take a written test' },
       { label: 'Presentations & speaking', value: 'presentation', hint: 'Prepare a speech or project you present' },
@@ -79,6 +80,41 @@ export const questions: Question[] = [
       { label: 'This would be my first time', value: 'first' },
       { label: 'I\'ve competed a little', value: 'some' },
       { label: 'I\'m a seasoned competitor', value: 'seasoned' },
+    ],
+  },
+  {
+    id: 'skill',
+    question: 'What is your strongest skill?',
+    options: [
+      { label: 'Research & memorizing', value: 'research', hint: 'I can study a topic and remember the details' },
+      { label: 'Writing', value: 'writing', hint: 'I can express ideas clearly on paper' },
+      { label: 'Creative thinking & design', value: 'creative', hint: 'I come up with original ideas and visuals' },
+      { label: 'Working with numbers & data', value: 'numerical', hint: 'Math, money, and data make sense to me' },
+      { label: 'Persuasion & selling', value: 'persuasion', hint: 'I can convince people and think on my feet' },
+      { label: 'Building things with code or tools', value: 'technical', hint: 'I like making apps, sites, videos, or hardware' },
+    ],
+  },
+  {
+    id: 'career',
+    question: 'What kind of career are you drawn to?',
+    options: [
+      { label: 'Leading a company or team', value: 'leadership' },
+      { label: 'Working in healthcare', value: 'healthcare' },
+      { label: 'Building technology', value: 'technology' },
+      { label: 'Working with money & finance', value: 'finance' },
+      { label: 'Government, law, or public policy', value: 'government' },
+      { label: 'Creating art, media, or design', value: 'creative' },
+      { label: 'Running my own business', value: 'entrepreneurship' },
+      { label: 'Serving my community', value: 'public-service' },
+    ],
+  },
+  {
+    id: 'workStyle',
+    question: 'Are you more of a planner or an improviser?',
+    options: [
+      { label: 'Planner', value: 'planner', hint: 'I like to prepare well in advance' },
+      { label: 'Improviser', value: 'improviser', hint: 'I am good at figuring things out on the spot' },
+      { label: 'A good mix of both', value: 'both' },
     ],
   },
 ];
