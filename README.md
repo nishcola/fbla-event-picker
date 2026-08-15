@@ -2,6 +2,8 @@
 
 A browser-based guide that helps FBLA members find competitive events that fit their interests, preferred competition style, grade level, preparation time, and career goals.
 
+<img width="2938" height="1284" alt="SCR-20260815-kpoz" src="https://github.com/user-attachments/assets/0c00a48c-9cd2-428c-ac8c-4a0f870893a6" />
+
 ## What it does
 
 - Recommends the five best-fitting events from a 10-question quiz.
@@ -14,6 +16,7 @@ A browser-based guide that helps FBLA members find competitive events that fit t
 ## Run locally
 
 ```bash
+git clone https://github.com/nishcola/fbla-event-picker.git
 npm install
 npm run dev
 ```
