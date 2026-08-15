@@ -7,8 +7,11 @@ export interface AppState {
   selectedEventId: string | null;
   /** Screen to return to when leaving the detail screen (browse or results). */
   detailOrigin: 'browse' | 'results';
+  /** List of event IDs selected for side-by-side comparison (max 3). */
+  compareEventIds: string[];
+  /** Screen to return to when leaving compare view. */
+  compareOrigin: Screen;
 }
-
 export type AppAction =
   | { type: 'SET_GRADE'; grade: number }
   | { type: 'START_QUIZ' }
@@ -16,6 +19,9 @@ export type AppAction =
   | { type: 'RESTORE_SESSION'; answers: Answers }
   | { type: 'GO_BROWSE' }
   | { type: 'GO_DETAIL'; eventId: string }
+  | { type: 'GO_COMPARE' }
+  | { type: 'TOGGLE_COMPARE'; eventId: string }
+  | { type: 'CLEAR_COMPARE' }
   | { type: 'GO_BACK' }
   | { type: 'GO_HOME' };
 
@@ -25,6 +31,8 @@ export const initialState: AppState = {
   grade: null,
   selectedEventId: null,
   detailOrigin: 'browse',
+  compareEventIds: [],
+  compareOrigin: 'browse',
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -41,6 +49,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, screen: 'results', answers: action.answers };
     case 'RESTORE_SESSION':
       return {
+        ...state,
         screen: 'results',
         answers: action.answers,
         grade: typeof action.answers.grade === 'number' ? action.answers.grade : state.grade,
@@ -63,8 +72,36 @@ export function appReducer(state: AppState, action: AppAction): AppState {
               ? 'results'
               : 'browse',
       };
+    case 'GO_COMPARE':
+      return {
+        ...state,
+        screen: 'compare',
+        compareOrigin: state.screen === 'compare' ? state.compareOrigin : state.screen,
+      };
+    case 'TOGGLE_COMPARE': {
+      const exists = state.compareEventIds.includes(action.eventId);
+      if (exists) {
+        return {
+          ...state,
+          compareEventIds: state.compareEventIds.filter((id) => id !== action.eventId),
+        };
+      }
+      if (state.compareEventIds.length >= 3) {
+        return state; // capped at 3
+      }
+      return {
+        ...state,
+        compareEventIds: [...state.compareEventIds, action.eventId],
+      };
+    }
+    case 'CLEAR_COMPARE':
+      return { ...state, compareEventIds: [] };
     case 'GO_BACK':
-      return { ...state, screen: state.detailOrigin, selectedEventId: null };
+      return {
+        ...state,
+        screen: state.screen === 'compare' ? state.compareOrigin : state.detailOrigin,
+        selectedEventId: null,
+      };
     case 'GO_HOME':
       return {
         ...state,

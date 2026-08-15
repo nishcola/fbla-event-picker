@@ -17,10 +17,24 @@ interface EventDetailProps {
   onSelectEvent: (eventId: string) => void;
   /** Label for the back button; defaults to "all events". */
   backLabel?: string;
+  compareEventIds?: string[];
+  onToggleCompare?: (eventId: string) => void;
 }
 
-function EventDetail({ event, topics, resources, similar, onBack, onQuiz, onSelectEvent, backLabel = 'Back to all events' }: EventDetailProps) {
+function EventDetail({
+  event,
+  topics,
+  resources,
+  similar,
+  onBack,
+  onQuiz,
+  onSelectEvent,
+  backLabel = 'Back to all events',
+  compareEventIds = [],
+  onToggleCompare,
+}: EventDetailProps) {
   const matchedThemes = INTEREST_THEMES.filter((t) => event.interests.includes(t.value));
+  const isCompared = compareEventIds.includes(event.id);
 
   // When the user opens a different event (e.g. a similar-events card), jump
   // back to the top so they see the new event's name and header.
@@ -30,9 +44,20 @@ function EventDetail({ event, topics, resources, similar, onBack, onQuiz, onSele
 
   return (
     <div className="detail">
-      <button type="button" className="btn-back" onClick={onBack}>
-        ← {backLabel}
-      </button>
+      <div className="detail-top-bar">
+        <button type="button" className="btn-back" onClick={onBack}>
+          ← {backLabel}
+        </button>
+        {onToggleCompare && (
+          <button
+            type="button"
+            className={`btn-detail-compare ${isCompared ? 'active' : ''}`}
+            onClick={() => onToggleCompare(event.id)}
+          >
+            {isCompared ? '✓ Added to Compare' : '+ Add to Compare'}
+          </button>
+        )}
+      </div>
 
       <header className="detail-head">
         <p className="kicker kicker-navy">{CATEGORY_LABELS[event.category]}</p>
@@ -50,6 +75,7 @@ function EventDetail({ event, topics, resources, similar, onBack, onQuiz, onSele
           ))}
         </div>
       </header>
+
 
       <section className="detail-section">
         <h3>About this event</h3>

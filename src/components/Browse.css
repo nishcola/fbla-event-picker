@@ -297,11 +297,55 @@
   gap: 6px;
 }
 
+.event-card.in-compare {
+  border-color: #3b82f6;
+  background: #f0f7ff;
+}
+
+.event-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.event-card-head .event-name {
+  margin: 0;
+}
+
+.btn-card-compare {
+  background: rgba(226, 232, 240, 0.7);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-card-compare:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn-card-compare.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
 /* Light-yellow tag for junior-only events in the browse list */
 .browse .badge.junior {
   background: #fdf3dd;
   color: #6b5200;
 }
+
 
 .browse-cta {
   text-align: center;

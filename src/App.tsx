@@ -12,12 +12,14 @@ import Quiz from './components/Quiz';
 import Results from './components/Results';
 import Browse from './components/Browse';
 import EventDetail from './components/EventDetail';
+import Compare from './components/Compare';
+import CompareTray from './components/CompareTray';
 import { ArrowRight, HomeIcon } from './components/icons';
 import type { Answers, FBLAEvent } from './types';
 
 function App() {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { screen, answers, grade } = state;
+  const { screen, answers, grade, compareEventIds } = state;
   const [resumable, setResumable] = useState<SavedSession | null>(() => loadSession());
 
   const isLanding = screen === 'home';
@@ -63,6 +65,18 @@ function App() {
     dispatch({ type: 'GO_DETAIL', eventId });
   };
 
+  const handleToggleCompare = (eventId: string) => {
+    dispatch({ type: 'TOGGLE_COMPARE', eventId });
+  };
+
+  const handleClearCompare = () => {
+    dispatch({ type: 'CLEAR_COMPARE' });
+  };
+
+  const handleGoCompare = () => {
+    dispatch({ type: 'GO_COMPARE' });
+  };
+
   return (
     <div className="app">
       {!isLanding && (
@@ -74,10 +88,21 @@ function App() {
               className="header-logo"
             />
             <span className="header-title">Event Picker</span>
-            <button type="button" className="btn-home" onClick={handleHome}>
-              <HomeIcon />
-              Home
-            </button>
+            <div className="header-actions">
+              {compareEventIds.length > 0 && screen !== 'compare' && (
+                <button
+                  type="button"
+                  className="btn-header-compare"
+                  onClick={handleGoCompare}
+                >
+                  Compare ({compareEventIds.length})
+                </button>
+              )}
+              <button type="button" className="btn-home" onClick={handleHome}>
+                <HomeIcon />
+                Home
+              </button>
+            </div>
           </div>
         </header>
       )}
@@ -192,11 +217,19 @@ function App() {
             onRestart={handleHome}
             onClearHistory={resumable ? handleClearHistory : undefined}
             onSelectEvent={handleSelectEvent}
+            compareEventIds={compareEventIds}
+            onToggleCompare={handleToggleCompare}
           />
         )}
 
         {screen === 'browse' && (
-          <Browse grade={grade} onQuiz={startQuiz} onSelectEvent={handleSelectEvent} />
+          <Browse
+            grade={grade}
+            onQuiz={startQuiz}
+            onSelectEvent={handleSelectEvent}
+            compareEventIds={compareEventIds}
+            onToggleCompare={handleToggleCompare}
+          />
         )}
 
         {screen === 'detail' && detailEvent && (
@@ -211,9 +244,33 @@ function App() {
             backLabel={
               state.detailOrigin === 'results' ? 'Back to your results' : 'Back to all events'
             }
+            compareEventIds={compareEventIds}
+            onToggleCompare={handleToggleCompare}
+          />
+        )}
+
+        {screen === 'compare' && (
+          <Compare
+            compareEventIds={compareEventIds}
+            events={events}
+            onBack={() => dispatch({ type: 'GO_BACK' })}
+            onSelectEvent={handleSelectEvent}
+            onToggleCompare={handleToggleCompare}
+            onClearCompare={handleClearCompare}
+            onBrowse={() => dispatch({ type: 'GO_BROWSE' })}
           />
         )}
       </main>
+
+      {screen !== 'compare' && (
+        <CompareTray
+          compareEventIds={compareEventIds}
+          events={events}
+          onCompare={handleGoCompare}
+          onToggleCompare={handleToggleCompare}
+          onClearCompare={handleClearCompare}
+        />
+      )}
     </div>
   );
 }

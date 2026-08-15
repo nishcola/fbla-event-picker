@@ -72,7 +72,7 @@ function computeTheoreticalMax(answers: Answers): number {
 // list of every answer that earned points ({ key, label, points, detail }).
 // This is the single source of truth used both for ranking and for the
 // "how we calculated this" breakdown on the results page.
-export function scoreEvent(
+function scoreEvent(
   event: FBLAEvent,
   answers: Answers,
 ): Omit<ScoredResult, 'percent' | 'rank'> {

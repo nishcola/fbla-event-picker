@@ -1,16 +1,55 @@
-# React + Vite
+# FBLA Event Picker
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A browser-based guide that helps FBLA members find competitive events that fit their interests, preferred competition style, grade level, preparation time, and career goals.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Recommends the five best-fitting events from a 10-question quiz.
+- Excludes introductory events for 11th and 12th graders.
+- Lets students browse and search all listed events by category, format, and career cluster.
+- Provides event descriptions, study topics, resources, and related-event suggestions.
+- Supports side-by-side comparison of up to three events.
+- Saves the most recent quiz results in the browser for 24 hours.
 
-## React Compiler
+## Run locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the Oxlint configuration
+Open the local URL shown by Vite.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Commands
+
+```bash
+npm run dev       # Start the development server
+npm run build     # Create a production build
+npm run preview   # Preview the production build
+npm run typecheck # Run TypeScript checks
+npm run lint      # Run Oxlint
+```
+
+## Project structure
+
+```text
+src/
+  components/  Quiz, browse, result, event-detail, and comparison UI
+  data/        Event catalog, descriptions, study topics, and resources
+  logic/       Quiz scoring, navigation state, saved sessions, and similar-event matching
+  types.ts     Shared domain types
+```
+
+## Updating event information
+
+The event catalog lives in `src/data/events.ts`. Supporting content is stored by event ID in:
+
+- `src/data/descriptions.ts`
+- `src/data/topics.ts`
+- `src/data/resources.ts`
+
+When adding or renaming an event, keep its ID consistent across these files. Review the official FBLA competitive-event guidance before changing eligibility, format, or event details.
+
+## Technology
+
+React, TypeScript, and Vite. The app is client-side only and does not use a backend or user accounts.
