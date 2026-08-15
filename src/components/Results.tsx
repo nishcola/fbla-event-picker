@@ -11,11 +11,14 @@ interface ResultCardProps {
   result: ScoredResult;
   position: number;
   onSelectEvent: (eventId: string) => void;
+  compareEventIds?: string[];
+  onToggleCompare?: (eventId: string) => void;
 }
 
-function ResultCard({ result, position, onSelectEvent }: ResultCardProps) {
+function ResultCard({ result, position, onSelectEvent, compareEventIds = [], onToggleCompare }: ResultCardProps) {
   const { event, percent } = result;
   const matchedThemes = INTEREST_THEMES.filter((t) => event.interests.includes(t.value));
+  const isCompared = compareEventIds.includes(event.id);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -26,7 +29,7 @@ function ResultCard({ result, position, onSelectEvent }: ResultCardProps) {
 
   return (
     <article
-      className="result-card"
+      className={`result-card ${isCompared ? 'in-compare' : ''}`}
       tabIndex={0}
       role="button"
       aria-label={`View details for ${event.name}`}
@@ -35,7 +38,22 @@ function ResultCard({ result, position, onSelectEvent }: ResultCardProps) {
     >
       <div className="rank-circle">{position + 1}</div>
       <div className="result-body">
-        <h3 className="result-name">{event.name}</h3>
+        <div className="result-title-row">
+          <h3 className="result-name">{event.name}</h3>
+          {onToggleCompare && (
+            <button
+              type="button"
+              className={`btn-card-compare ${isCompared ? 'active' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleCompare(event.id);
+              }}
+              aria-label={isCompared ? `Remove ${event.name} from comparison` : `Add ${event.name} to comparison`}
+            >
+              {isCompared ? '✓ Comparing' : '+ Compare'}
+            </button>
+          )}
+        </div>
         {descriptions[event.id] && (
           <EventDescription text={descriptions[event.id]} clampLines={2} />
         )}
@@ -97,9 +115,11 @@ interface ResultsProps {
   onRestart: () => void;
   onClearHistory?: () => void;
   onSelectEvent: (eventId: string) => void;
+  compareEventIds?: string[];
+  onToggleCompare?: (eventId: string) => void;
 }
 
-function Results({ results, answers, onRestart, onClearHistory, onSelectEvent }: ResultsProps) {
+function Results({ results, answers, onRestart, onClearHistory, onSelectEvent, compareEventIds = [], onToggleCompare }: ResultsProps) {
   const top = results.slice(0, 5);
   const excluded = excludedCount(answers);
 
@@ -121,9 +141,17 @@ function Results({ results, answers, onRestart, onClearHistory, onSelectEvent }:
 
       <div className="results-list">
         {top.map((r, i) => (
-          <ResultCard key={r.event.id} result={r} position={i} onSelectEvent={onSelectEvent} />
+          <ResultCard
+            key={r.event.id}
+            result={r}
+            position={i}
+            onSelectEvent={onSelectEvent}
+            compareEventIds={compareEventIds}
+            onToggleCompare={onToggleCompare}
+          />
         ))}
       </div>
+
 
       <details className="breakdown">
         <summary className="breakdown-summary">

@@ -118,9 +118,12 @@ interface BrowseProps {
   grade: number | null;
   onQuiz: () => void;
   onSelectEvent: (eventId: string) => void;
+  compareEventIds?: string[];
+  onToggleCompare?: (eventId: string) => void;
 }
 
-function Browse({ grade, onQuiz, onSelectEvent }: BrowseProps) {
+function Browse({ grade, onQuiz, onSelectEvent, compareEventIds = [], onToggleCompare }: BrowseProps) {
+
   const [query, setQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(() => new Set());
   const [selectedFormats, setSelectedFormats] = useState<Set<string>>(() => new Set());
@@ -241,27 +244,46 @@ function Browse({ grade, onQuiz, onSelectEvent }: BrowseProps) {
             <p className="browse-empty">No events match your search.</p>
           ) : (
             <div className="event-list">
-              {visible.map((event) => (
-                <article
-                  key={event.id}
-                  className="event-card"
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`View details for ${event.name}`}
-                  onClick={() => onSelectEvent(event.id)}
-                  onKeyDown={(e) => handleCardKeyDown(e, event.id)}
-                >
-                  <h3 className="event-name">{event.name}</h3>
-                  {descriptions[event.id] && (
-                    <EventDescription text={descriptions[event.id]} clampLines={3} />
-                  )}
-                  <div className="event-badges">
-                    <span className="badge">{CATEGORY_LABELS[event.category]}</span>
-                    <span className="badge">{FORMAT_LABELS[event.format]}</span>
-                    {event.juniorOnly && <span className="badge junior">9th-10th grade</span>}
-                  </div>
-                </article>
-              ))}
+              {visible.map((event) => {
+                const isCompared = compareEventIds.includes(event.id);
+                return (
+                  <article
+                    key={event.id}
+                    className={`event-card ${isCompared ? 'in-compare' : ''}`}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View details for ${event.name}`}
+                    onClick={() => onSelectEvent(event.id)}
+                    onKeyDown={(e) => handleCardKeyDown(e, event.id)}
+                  >
+                    <div className="event-card-head">
+                      <h3 className="event-name">{event.name}</h3>
+                      {onToggleCompare && (
+                        <button
+                          type="button"
+                          className={`btn-card-compare ${isCompared ? 'active' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleCompare(event.id);
+                          }}
+                          aria-label={isCompared ? `Remove ${event.name} from comparison` : `Add ${event.name} to comparison`}
+                        >
+                          {isCompared ? '✓ Comparing' : '+ Compare'}
+                        </button>
+                      )}
+                    </div>
+                    {descriptions[event.id] && (
+                      <EventDescription text={descriptions[event.id]} clampLines={3} />
+                    )}
+                    <div className="event-badges">
+                      <span className="badge">{CATEGORY_LABELS[event.category]}</span>
+                      <span className="badge">{FORMAT_LABELS[event.format]}</span>
+                      {event.juniorOnly && <span className="badge junior">9th-10th grade</span>}
+                    </div>
+                  </article>
+                );
+              })}
+
             </div>
           )}
         </div>

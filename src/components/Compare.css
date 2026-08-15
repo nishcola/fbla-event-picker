@@ -1,0 +1,256 @@
+.compare-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px 48px;
+  width: 100%;
+}
+
+.compare-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-clear-compare {
+  background: none;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-clear-compare:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.compare-title-section h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 4px 0 8px;
+  color: var(--text-heading, #0f172a);
+}
+
+.compare-sub {
+  color: var(--text-muted, #64748b);
+  font-size: 1rem;
+}
+
+/* Empty state */
+.compare-empty-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 600px;
+  margin: 40px auto;
+  width: 100%;
+}
+
+.compare-empty-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.compare-empty-card h2 {
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.compare-empty-card p {
+  color: #64748b;
+  max-width: 420px;
+}
+
+/* Matrix Table Wrapper */
+.compare-matrix-wrapper {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+}
+
+.compare-matrix {
+  display: grid;
+  min-width: 700px;
+  background: #f8fafc;
+}
+
+.matrix-cell {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.9rem;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.matrix-label-header,
+.matrix-label,
+.matrix-label-footer {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #334155;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.matrix-event-header {
+  background: #ffffff;
+  gap: 8px;
+}
+
+.matrix-event-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.matrix-event-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.matrix-remove-btn {
+  background: rgba(226, 232, 240, 0.6);
+  border: none;
+  color: #64748b;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.matrix-remove-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.matrix-event-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.matrix-content {
+  background: #ffffff;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.matrix-value-highlight {
+  font-size: 0.95rem;
+  color: #1e40af;
+  font-weight: 700;
+}
+
+.matrix-hint-text {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.matrix-value {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.matrix-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.junior-tag {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.standard-tag {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.matrix-badge-group,
+.matrix-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cluster-badge {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.matrix-topic-list {
+  padding-left: 18px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+.matrix-topic-more {
+  list-style: none;
+  font-style: italic;
+  color: #64748b;
+  margin-top: 2px;
+  margin-left: -18px;
+}
+
+.matrix-fallback {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.matrix-action-cell {
+  background: #ffffff;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.matrix-action-cell .btn-primary {
+  width: 100%;
+}
